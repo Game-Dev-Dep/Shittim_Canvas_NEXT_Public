@@ -10,6 +10,7 @@ permissions:
 
 jobs:
   replace-category-label:
+    if: ${{ github.event.action == 'opened' || github.event.changes.body != null }}
     runs-on: ubuntu-latest
 
     steps:
@@ -124,14 +125,16 @@ jobs:
             }
 
             if (isCharacter) {
-              for (const label of characterCategoryLabels) {
-                await removeLabelIfExists(label);
-              }
-
               const newLabel = characterMap[issueType];
               if (!newLabel) {
                 core.warning(`No mapped character label for issue type: ${issueType}`);
                 return;
+              }
+
+              for (const label of characterCategoryLabels) {
+                if (label !== newLabel) {
+                  await removeLabelIfExists(label);
+                }
               }
 
               await addLabelIfMissing(newLabel);
@@ -139,14 +142,16 @@ jobs:
             }
 
             if (isSoftware) {
-              for (const label of softwareCategoryLabels) {
-                await removeLabelIfExists(label);
-              }
-
               const newLabel = softwareMap[issueType];
               if (!newLabel) {
                 core.warning(`No mapped software label for issue type: ${issueType}`);
                 return;
+              }
+
+              for (const label of softwareCategoryLabels) {
+                if (label !== newLabel) {
+                  await removeLabelIfExists(label);
+                }
               }
 
               await addLabelIfMissing(newLabel);
