@@ -1,0 +1,81 @@
+name: Software Feature Request
+description: 提交软件功能建议、逻辑优化、UI 功能或设置条目建议
+title: "[Software Feature]: "
+labels:
+  - enhancement
+  - software
+type: feature
+body:
+  - type: markdown
+    attributes:
+      value: |
+        请使用此模板提交**软件相关建议**。
+
+        适用范围包括：
+        - 逻辑功能
+        - UI 功能
+        - 逻辑优化
+        - 设置条目
+        
+        请尽量描述清楚问题场景、操作路径和结果表现。
+
+  - type: dropdown
+    id: suggestion_type
+    attributes:
+      label: 建议类型
+      description: 请选择最符合该建议的分类
+      options:
+        - 逻辑功能
+        - UI 功能
+        - 逻辑优化
+        - 设置条目
+    validations:
+      required: true
+
+  - type: textarea
+    id: need
+    attributes:
+      label: 需求 / 痛点
+      description: 请描述现在遇到的不便、想完成的目标，或希望改进的地方
+      placeholder: |
+        现在的使用场景是...
+        遇到的不便是...
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: 建议方案
+      description: 请描述你希望它如何工作
+      placeholder: |
+        希望可以...
+    validations:
+      required: true
+
+  - type: input
+    id: software_version
+    attributes:
+      label: 相关版本
+      description: 如果这个建议和某个版本有关，请填写版本号
+      placeholder: 例如：v1.0.0+20260317
+    validations:
+      required: false
+
+  - type: textarea
+    id: attachments
+    attributes:
+      label: 截图 / 参考链接 / 补充材料
+      description: 可粘贴截图、录屏、参考链接或其它说明
+      placeholder: |
+        请在这里粘贴相关链接或补充说明
+    validations:
+      required: false
+
+  - type: textarea
+    id: remarks
+    attributes:
+      label: 备注
+      description: 其它补充信息
+    validations:
+      required: false

@@ -4,6 +4,7 @@ title: "[Software Bug]: "
 labels:
   - bug
   - software
+type: bug
 body:
   - type: markdown
     attributes:

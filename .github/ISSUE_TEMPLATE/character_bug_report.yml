@@ -4,6 +4,7 @@ title: "[Character Bug]: "
 labels:
   - bug
   - character
+type: bug
 body:
   - type: markdown
     attributes:
