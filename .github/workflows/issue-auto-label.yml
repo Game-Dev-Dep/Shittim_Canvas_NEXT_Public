@@ -27,45 +27,105 @@ jobs:
             );
 
             const characterCategoryLabels = [
-              "character:metadata",
-              "character:opening-animation",
-              "character:interaction-animation",
-              "character:animation-blend",
-              "character:subtitle",
-              "character:bgm",
-              "character:voice",
-              "character:vfx",
-              "character:other"
+              "character:bug:metadata",
+              "character:bug:opening-animation",
+              "character:bug:interaction-animation",
+              "character:bug:animation-blend",
+              "character:bug:subtitle",
+              "character:bug:bgm",
+              "character:bug:voice",
+              "character:bug:vfx",
+              "character:bug:other"
             ];
 
             const softwareCategoryLabels = [
-              "software:ui-interaction",
-              "software:ui-animation",
-              "software:logic",
-              "software:function",
-              "software:performance",
-              "software:other"
+              "software:bug:ui-interaction",
+              "software:bug:ui-animation",
+              "software:bug:logic",
+              "software:bug:function",
+              "software:bug:performance",
+              "software:bug:other",
+              "software:bug:ui-interaction",
+              "software:bug:ui-animation",
+              "software:bug:logic",
+              "software:bug:function",
+              "software:bug:performance",
+              "software:bug:other",
+              "software:feat:logic-function",
+              "software:feat:ui-function",
+              "software:feat:logic-optimization",
+              "software:feat:setting"
             ];
 
             const characterMap = {
-              "元数据异常": "character:metadata",
-              "开场动画异常": "character:opening-animation",
-              "交互动画异常": "character:interaction-animation",
-              "动画混合异常": "character:animation-blend",
-              "字幕异常": "character:subtitle",
-              "背景音乐异常": "character:bgm",
-              "语音异常": "character:voice",
-              "视效异常": "character:vfx",
-              "其他": "character:other"
+              "元数据异常": "character:bug:metadata",
+              "开场动画异常": "character:bug:opening-animation",
+              "交互动画异常": "character:bug:interaction-animation",
+              "动画混合异常": "character:bug:animation-blend",
+              "字幕异常": "character:bug:subtitle",
+              "背景音乐异常": "character:bug:bgm",
+              "语音异常": "character:bug:voice",
+              "视效异常": "character:bug:vfx",
+              "其他": "character:bug:other"
             };
 
             const softwareMap = {
-              "UI 交互异常": "software:ui-interaction",
-              "UI 动画异常": "software:ui-animation",
-              "操作逻辑异常": "software:logic",
-              "功能异常": "software:function",
-              "性能异常": "software:performance",
-              "其他": "software:other"
+              "UI 交互异常": "software:bug:ui-interaction",
+              "UI 动画异常": "software:bug:ui-animation",
+              "操作逻辑异常": "software:bug:logic",
+              "功能异常": "software:bug:function",
+              "性能异常": "software:bug:performance",
+              "其他": "software:bug:other"
+            };
+
+            const softwareFeatureMap = {
+              "逻辑功能": "software:feat:logic-function",
+              "UI 功能": "software:feat:ui-function",
+              "逻辑优化": "software:feat:logic-optimization",
+              "设置条目": "software:feat:setting"
+            };
+
+            const labelMetadata = {
+              "software:bug:ui-interaction": {
+                color: "d73a4a",
+                description: "软件缺陷：UI 交互异常。"
+              },
+              "software:bug:ui-animation": {
+                color: "d73a4a",
+                description: "软件缺陷：UI 动画异常。"
+              },
+              "software:bug:logic": {
+                color: "d73a4a",
+                description: "软件缺陷：操作逻辑异常。"
+              },
+              "software:bug:function": {
+                color: "d73a4a",
+                description: "软件缺陷：功能异常。"
+              },
+              "software:bug:performance": {
+                color: "d73a4a",
+                description: "软件缺陷：性能异常。"
+              },
+              "software:bug:other": {
+                color: "d73a4a",
+                description: "软件缺陷：其他软件异常。"
+              },
+              "software:feat:logic-function": {
+                color: "a2eeef",
+                description: "软件建议：逻辑功能。"
+              },
+              "software:feat:ui-function": {
+                color: "a2eeef",
+                description: "软件建议：UI 功能。"
+              },
+              "software:feat:logic-optimization": {
+                color: "a2eeef",
+                description: "软件建议：逻辑优化。"
+              },
+              "software:feat:setting": {
+                color: "a2eeef",
+                description: "软件建议：设置条目。"
+              }
             };
 
             function extractField(fieldName) {
@@ -99,6 +159,7 @@ jobs:
                 core.info(`Label already exists: ${labelName}`);
                 return;
               }
+              await ensureLabelExists(labelName);
               await github.rest.issues.addLabels({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
@@ -108,11 +169,41 @@ jobs:
               core.info(`Added label: ${labelName}`);
             }
 
+            async function ensureLabelExists(labelName) {
+              const metadata = labelMetadata[labelName];
+              if (!metadata) return;
+
+              try {
+                await github.rest.issues.getLabel({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  name: labelName
+                });
+              } catch (error) {
+                if (error.status !== 404) {
+                  throw error;
+                }
+
+                await github.rest.issues.createLabel({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  name: labelName,
+                  color: metadata.color,
+                  description: metadata.description
+                });
+                core.info(`Created label: ${labelName}`);
+              }
+            }
+
             const issueType = extractField("问题类型");
             core.info(`Extracted 问题类型: ${issueType || "(empty)"}`);
 
+            const suggestionType = extractField("建议类型");
+            core.info(`Extracted 建议类型: ${suggestionType || "(empty)"}`);
+
             const isCharacter = currentLabels.includes("character");
             const isSoftware = currentLabels.includes("software");
+            const isFeature = currentLabels.includes("enhancement");
 
             if (!isCharacter && !isSoftware) {
               core.info('Skip: neither "character" nor "software" label found.');
@@ -125,6 +216,11 @@ jobs:
             }
 
             if (isCharacter) {
+              if (!issueType) {
+                core.info('Skip: character issue form does not contain a bug category field.');
+                return;
+              }
+
               const newLabel = characterMap[issueType];
               if (!newLabel) {
                 core.warning(`No mapped character label for issue type: ${issueType}`);
@@ -142,9 +238,9 @@ jobs:
             }
 
             if (isSoftware) {
-              const newLabel = softwareMap[issueType];
+              const newLabel = isFeature ? softwareFeatureMap[suggestionType] : softwareMap[issueType];
               if (!newLabel) {
-                core.warning(`No mapped software label for issue type: ${issueType}`);
+                core.warning(`No mapped software label for category: ${isFeature ? suggestionType : issueType}`);
                 return;
               }
 
